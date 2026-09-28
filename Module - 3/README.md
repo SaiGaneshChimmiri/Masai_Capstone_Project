@@ -1,150 +1,117 @@
+# Zepto Data & AI Platform
 
-## RAG Pipeline Architecture
+A complete data and AI platform project built with Python, Pandas, Scikit-learn, SQLite, ChromaDB, FastAPI, and LangChain.
 
-The Zepto customer support application follows a Retrieval-Augmented Generation (RAG) pipeline consisting of four main stages: **ingestion, embedding, retrieval, and generation**.
+The project contains three major modules:
 
-### 1. Ingestion
+1. Data Pipeline
+2. Analytics & Machine Learning
+3. AI-Powered Support Assistant
 
-The Zepto policy documents are stored as text files (`doc1.txt` to `doc8.txt`) in the `docs` folder. The ingestion code reads these files and stores their text along with metadata such as document ID, title, category, and source.
+---
 
-The documents are stored in the ChromaDB collection named `zepto_policies`. In this implementation, each policy document is stored as a document/chunk rather than being split into multiple smaller chunks.
+## Project Overview
 
-### 2. Embedding
+The Zepto Data & AI Platform demonstrates an end-to-end workflow starting from data collection and cleaning, followed by analytics and machine learning, and finally an AI-powered support assistant.
 
-The `SentenceTransformer` model:
+### Main Workflow
 
-```text
-all-MiniLM-L6-v2
-```
+Data Collection
+        ↓
+Data Cleaning & Transformation
+        ↓
+SQLite Database + CSV
+        ↓
+Exploratory Data Analysis
+        ↓
+Machine Learning Models
+        ↓
+Policy Documents
+        ↓
+Vector Database
+        ↓
+AI Support Assistant
+        ↓
+FastAPI REST API
 
-is used to convert the policy documents into numerical embedding vectors.
+---
 
-The same embedding model is used when a user submits a question. The user's question is converted into an embedding and compared with the stored embeddings in ChromaDB.
+# Technologies Used
 
-ChromaDB stores the embeddings and document data in:
+## Programming Language
 
-```text
-./chroma_db
-```
+- Python
 
-using the collection:
+## Data Engineering
 
-```text
-zepto_policies
-```
+- Requests
+- BeautifulSoup
+- Pandas
+- SQLite
 
-### 3. Retrieval
+## Data Analysis
 
-The LangGraph workflow first uses the `classify_intent` node to determine whether the question is related to a Zepto policy.
+- Pandas
+- NumPy
+- Matplotlib
+- Seaborn
 
-Policy-related questions are routed to the:
+## Machine Learning
 
-```text
-retrieve_and_answer
-```
+- Scikit-learn
+- Logistic Regression
+- Decision Tree
+- Random Forest
+- GridSearchCV
 
-node.
+## AI / NLP
 
-This node:
+- LangChain
+- ChromaDB
+- Retrieval-Augmented Generation (RAG)
 
-1. Embeds the user's question using `all-MiniLM-L6-v2`.
-2. Queries the `zepto_policies` ChromaDB collection.
-3. Retrieves the top 3 most similar documents.
-4. Combines the retrieved documents into the context.
-5. Uses the retrieved document IDs as the `sources`.
+## Backend
 
-The retrieved context is then passed to the answer-generation step.
+- FastAPI
+- Uvicorn
+- Pydantic
 
-### 4. Generation
+## Development Tools
 
-In the graded baseline, `MOCK_LLM` uses its default value:
+- VS Code
+- Git
+- GitHub
 
-```python
-MOCK_LLM = os.getenv("MOCK_LLM", "1")
-```
+---
 
-The mock generation path produces a deterministic answer using the retrieved context:
-
-```text
-Based on the retrieved context: <top retrieved document excerpt>
-```
-
-The `FinalAnswer` Pydantic model validates the final response and contains:
-
-```text
-answer
-sources
-confidence
-```
-
-For a general question that is not related to Zepto policies, the `classify_intent` node routes the request to the `direct_answer` node instead of performing retrieval. This node returns:
-
-```text
-I can only answer questions about Zepto policies right now.
-```
-
-with an empty `sources` list.
-
-### Data Flow
-
-```text
-Zepto Policy Documents
-        │
-        ▼
-   Ingestion
- doc1.txt ... doc8.txt
-        │
-        ▼
- SentenceTransformer
- all-MiniLM-L6-v2
-        │
-        ▼
-     ChromaDB
-  zepto_policies
-        │
-        │
- User Question
-        │
-        ▼
- classify_intent
-        │
-   ┌────┴─────┐
-   │          │
-Policy      General
-Question    Question
-   │          │
-   ▼          ▼
-retrieve_   direct_answer
-and_answer      │
-   │            │
-   ▼            │
-Top-3 Docs      │
-   │            │
-   └──────┬─────┘
-          ▼
-     FinalAnswer
-          │
-          ▼
-       FastAPI
-       POST /ask
-```
-
-### MOCK_LLM Toggle
-
-The application is designed around the `MOCK_LLM` environment variable. The default graded configuration is:
+# Project Structure
 
 ```text
-MOCK_LLM=1
-```
-
-In the default mock mode, no external LLM API is required. The retrieval pipeline still performs embedding and ChromaDB retrieval, while the final answer is generated deterministically from the retrieved context.
-
-The optional real-LLM extension can use:
-
-```text
-MOCK_LLM=0
-```
-
-to replace the mock generation behavior with an actual LLM-based generation step. The retrieval and ChromaDB stages remain the same; the main change is how the final answer is generated and validated.
-
-For the required submission, the application is run with the default `MOCK_LLM=1` configuration.
+zepto_data_ai_platform/
+│
+├── analytics/
+│   ├── outputs/
+│   ├── 01_eda.py
+│   ├── 02_modeling.py
+│   ├── README.md
+│   └── titanic.csv
+│
+├── data_pipeline/
+│   └── pipeline.py
+│
+├── support_assistant/
+│   ├── chroma_db/
+│   ├── data/
+│   ├── docs/
+│   ├── __init__.py
+│   ├── build_index.py
+│   ├── demo_calls.py
+│   ├── Dockerfile
+│   ├── main.py
+│   ├── prompt.py
+│   └── README.md
+│
+├── .gitignore
+├── feature_notes.md
+├── README.md
+└── requirements.txt
